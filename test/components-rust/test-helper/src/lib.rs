@@ -16,9 +16,9 @@ struct State {
 
 thread_local! {
     /// This holds the state of our application.
-    static STATE: RefCell<State> = RefCell::new(State {
+    static STATE: RefCell<State> = const { RefCell::new(State {
         total: 0,
-    });
+    }) };
 }
 
 struct Component;
