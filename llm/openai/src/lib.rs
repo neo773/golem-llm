@@ -1,9 +1,7 @@
 mod client;
 mod conversions;
 
-use crate::client::{
-    ChatCompletionChunk, CompletionsApi, CompletionsRequest,
-};
+use crate::client::{ChatCompletionChunk, CompletionsApi, CompletionsRequest};
 use crate::conversions::{
     convert_finish_reason, convert_usage, create_request, process_response,
     tool_results_to_messages,
@@ -13,8 +11,8 @@ use golem_llm::config::with_config_key;
 use golem_llm::durability::{DurableLLM, ExtendedGuest};
 use golem_llm::event_source::EventSource;
 use golem_llm::golem::llm::llm::{
-    ChatEvent, ChatStream, Config, ContentPart, Error, FinishReason, Guest, Message, StreamDelta,
-    StreamEvent, ToolCall, ToolResult, ResponseMetadata, Role,
+    ChatEvent, ChatStream, Config, ContentPart, Error, FinishReason, Guest, Message,
+    ResponseMetadata, Role, StreamDelta, StreamEvent, ToolCall, ToolResult,
 };
 use golem_llm::LOGGING_STATE;
 use golem_rust::wasm_rpc::Pollable;
@@ -128,22 +126,26 @@ impl LlmChatStreamState for OpenAIChatStream {
             if let Some(tool_calls) = &delta.tool_calls {
                 let mut fragments = self.json_fragments.borrow_mut();
                 let mut result_tool_calls = Vec::new();
-                
+
                 for tool_call in tool_calls {
                     match tool_call {
-                        crate::client::ToolCall::Function { function, id, index } => {
+                        crate::client::ToolCall::Function {
+                            function,
+                            id,
+                            index,
+                        } => {
                             let idx = index.unwrap_or(0);
-                            
+
                             let fragment = fragments.entry(idx).or_insert_with(|| JsonFragment {
                                 id: id.clone(),
                                 name: function.name.clone(),
                                 json: String::new(),
                             });
-                            
+
                             if !function.arguments.is_empty() {
                                 fragment.json.push_str(&function.arguments);
                             }
-                            
+
                             // Only emit when we have content to add
                             if !fragment.id.is_empty() && !fragment.name.is_empty() {
                                 result_tool_calls.push(ToolCall {
@@ -248,10 +250,7 @@ impl Guest for OpenAIComponent {
 }
 
 impl ExtendedGuest for OpenAIComponent {
-    fn unwrapped_stream(
-        messages: Vec<Message>,
-        config: Config,
-    ) -> LlmChatStream<OpenAIChatStream> {
+    fn unwrapped_stream(messages: Vec<Message>, config: Config) -> LlmChatStream<OpenAIChatStream> {
         LOGGING_STATE.with_borrow_mut(|state| state.init());
 
         with_config_key(

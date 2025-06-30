@@ -1,18 +1,12 @@
-use crate::client::{
-    CompletionsRequest, CompletionsResponse, Detail, Function,
-    Tool,
-};
+use crate::client::{CompletionsRequest, CompletionsResponse, Detail, Function, Tool};
 use base64::{engine::general_purpose, Engine as _};
 use golem_llm::golem::llm::llm::{
-    ChatEvent, CompleteResponse, Config, ContentPart, Error, ErrorCode, ImageDetail,
-    ImageReference, Message, ResponseMetadata, Role, ToolCall, ToolDefinition, ToolResult, Usage, FinishReason,
+    ChatEvent, CompleteResponse, Config, ContentPart, Error, ErrorCode, FinishReason, ImageDetail,
+    ImageReference, Message, ResponseMetadata, Role, ToolCall, ToolDefinition, ToolResult, Usage,
 };
 use std::collections::HashMap;
 
-pub fn create_request(
-    messages: Vec<Message>,
-    config: Config,
-) -> Result<CompletionsRequest, Error> {
+pub fn create_request(messages: Vec<Message>, config: Config) -> Result<CompletionsRequest, Error> {
     let options = config
         .provider_options
         .into_iter()
@@ -111,8 +105,6 @@ pub fn tool_results_to_messages(
     }
     messages
 }
-
-
 
 fn tool_definition_to_tool(tool: ToolDefinition) -> Result<Tool, Error> {
     match serde_json::from_str(&tool.parameters_schema) {
@@ -239,5 +231,3 @@ pub fn convert_usage(value: &crate::client::Usage) -> Usage {
         total_tokens: Some(value.total_tokens),
     }
 }
-
-

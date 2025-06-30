@@ -274,7 +274,10 @@ pub struct ChoiceDelta {
 }
 
 fn parse_response<T: DeserializeOwned + Debug>(response: Response) -> Result<T, Error> {
-    trace!("Received response from OpenAI API, status: {}", response.status());
+    trace!(
+        "Received response from OpenAI API, status: {}",
+        response.status()
+    );
 
     if !response.status().is_success() {
         return Err(Error {
